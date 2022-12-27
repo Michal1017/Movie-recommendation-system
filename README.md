@@ -1,4 +1,7 @@
 # Movie recommendation system
+ 
+ Program to improve machine learning skills and improve python skills.
+ 
  Content-based movie recommendation system with movies_metadata dataset, which has 45000 movies.
  
  Program has few types of recommendation.
