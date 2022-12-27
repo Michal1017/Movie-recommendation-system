@@ -11,20 +11,20 @@ warnings.filterwarnings("ignore")
 
 df = pd.read_csv("movies_metadata.csv")
 
-#df = df[:9999]
-
 # check how much data is missing
 print("Number of missing features in dataset:")
 print(df.isnull().sum())
 
-# our recommendation system will be based on that categories like: adult,budget,genres,original language,popularity,vote_avarage
+# our recommendation system will be based on categories like: adult,budget,genres,original language,popularity,vote_avarage
 df = df[['title', 'adult', 'budget', 'genres',
          'original_language', 'popularity', 'vote_average', 'overview', 'release_date']]
 
 
+# extract release year from release date
 df['release_year'] = df['release_date'].str.extract(
     r'([0-9]{4})', expand=True).astype(float)
 
+# print some information about dataset after changes
 print("First 5 movies of our movie dataset:")
 print(df.head())
 print("Feauters of movies:")
@@ -155,6 +155,7 @@ def get_same_genres_recommendations(title, cosine_sim):
     return df['title'].iloc[recommend_movie_indices]
 
 
+# create matrix with similarities which movie genres are similar  using cosine similarity
 count2 = CountVectorizer(stop_words='english')
 count_matrix2 = count.fit_transform(df['genres'])
 
@@ -209,24 +210,18 @@ def improved_recommendation(title, cosine_sim):
     # getting index of movie for which we want recommendation
     index_of_movie = indices[title]
 
-    #index_of_movie = index_of_movie.astype(int)
-
-    # if(index_of_movie.shape > 1):
-    #    print('There are 2 films with this title')
-
     # getting scores of other films similarities to that movie
     similarities = list(enumerate(cosine_sim[index_of_movie]))
 
     # sorting this similarities
     similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
 
-    #similarities = biggest_similarities(similarities)
-
     similarities = similarities[1:21]
 
     # get indices of the most similar movies
     recommend_movie_indices = [i[0] for i in similarities]
 
+    # get euclidian distance for numerical features in dataset
     euclidian_distance = []
     for i in recommend_movie_indices:
         distance = sqrt((df['budget_norm'][index_of_movie]-df['budget_norm'][i])**2+(df['popularity_norm'][index_of_movie] -
@@ -235,8 +230,10 @@ def improved_recommendation(title, cosine_sim):
 
     euclidian_distance = sorted(euclidian_distance, key=lambda x: x[1])
 
+    # get top most similiar movies
     euclidian_distance = euclidian_distance[1:11]
 
+    # get indices of most similiar movies
     recommend_movie_indices = [i[0] for i in euclidian_distance]
 
     recommend_movie = df.iloc[recommend_movie_indices]
